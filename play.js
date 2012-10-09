@@ -1,65 +1,87 @@
 var B = require('baudio');
-var b = B();
-f = 75;
-f1 = 75 * 3;
-s = 0.5;
+var oz = require('oscillators');
+var synco = require('syncopation');
+b = B({rate:44100, size:2048});
 
-module.exports = function(freq, amp){
-	return new oz(freq, amp)
-};
+o = new oz(100)
 
-function oz(f, a){
-	this.f = f;
-	this.a = a;
+function gus (amp, x, b, c){
+  b = b || 0;
+  c = c || 1;
+
+  var num = Math.pow((x - b), 2);
+
+  var den = 2* Math.pow(2.35482 * c, 2);
+
+  var v = amp * Math.pow(2.71828, (-(num / den)));
+
+  return v
+
+}
+
+var sync = new synco(1, 6/9);
+
+function play (t,i){
+  var e = 4;
+  var b = 2;
+  var s = Math.pow(b, e);
+  var f = 220;
+  var z = o.sine(t, f); 
+  var x = z * s;
+  var y = z;
+
+  while(x > z * (1 / s)){
+    y *= gus(z, x);
+    x *= (1 / b);
+  }
+
+  return y;
+
 }
 
 
+function play2(t,i){
+  var e = 4/3;
+  var b = 8/3;
+  var s = Math.pow(b, e);
 
-function sine(t){
-		
-	return Math.sin(t * f * Math.PI);
-	
-};
+  var f = 55 * o.sine(t, 220);
+  var y = o.triangle(t, f)
 
-function saw (t){
+  var x = f;
 
-	var n = ((t % (1/f)) * f) % 1; // n = [0 -> 1]
+  while(x >= f * (1 / s)){
+    y = o.triangle(t, x);
+    x *= (1 / b);
+  }
 
-	return -1 + (2 * n)
+  return y * .25;
+}
 
-};
+// play * play2 = play3 (sorta)
 
-function saw_b (t){
+function play3 (t,i){
+  var e = 2;
+  var b = 2;
+  var s = Math.pow(b, e);
 
-	var n = ((t % (1/f)) * f) % 1; // n = [0 -> 1]
+  var f = 110;
+  var z = o.sine(t, f);
+  var y = z; 
+  var x = z * s;
+  pl = 0;
 
-	return 1 - (2 * n)
+  while(x > z * (1 / s)){
+    x *= (1 / b);
+    pl = gus(z, x, 0, 2);
+    y *= o.sine(t, pl * f);
+  }
 
-};
+  return y;
 
-function triangle (t){
-		
-	var n = ((t % (1/f)) * f) % 1; // n = [0 -> 1]
-	
-	return n < 0.5 ? -1 + (2 * (2 * n)) : 1 - (2 * (2 * n))
-	
-};
+}
 
-function triangle_s (t){
-		
-	var n = ((t % (1/f)) * f) % 1; // n = [0 -> 1]
-	
-	s = Math.abs(Math.sin(t));
-	
-	return n < s ? -1 + (2 * (2 * (n / s))) : 1 - (2 * (2 * (n / s)))
-	
-};
-
-function square (t){
-
-  return ((t % (1/f)) * f) % 1 > 0.5 ? 1 : -1;
-
-};
-
-b.push(square)
-b.play();
+b.push(play3);
+//b.push(play2);
+//b.push(play);
+b.play({c: 1})

@@ -13,9 +13,16 @@
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
-  "repository": "",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/NHQ/instrument.git"
+  },
   "author": "johnny",
-  "license": "MIT"
+  "license": "XXX",
+  "directories": {
+    "example": "example"
+  }
 }
