@@ -1,0 +1,9 @@
+paper.install(window);
+
+window.onload = init
+
+function init(){
+  paper.setup('canvas');
+  var rect = new Rectangle(0, 0, 100, 50);
+  rect.strokeColor = 'red';
+};
